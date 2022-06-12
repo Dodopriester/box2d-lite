@@ -11,6 +11,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <random>
 
 #include "imgui/imgui.h"
 #include "imgui_impl_glfw.h"
@@ -35,7 +36,7 @@ namespace
 
 	float timeStep = 1.0f / 60.0f;
 	int iterations = 10;
-	Vec2 gravity(0.0f, -10.0f);
+	Vec2 gravity(0.0f, 0.0f);
 
 	int numBodies = 0;
 	int numJoints = 0;
@@ -138,8 +139,32 @@ static void Demo1(Body* b, Joint* j)
 	world.Add(b);
 	++b; ++numBodies;
 
+	b->Set(Vec2(100.0f, 20.0f), FLT_MAX);
+	b->rotation = (3.1415f/2.0f);
+	b->position.Set(-25.0f, -0.5f * b->width.y);
+	world.Add(b);
+	++b; ++numBodies;
+
+	b->Set(Vec2(100.0f, 20.0f), FLT_MAX);
+	b->rotation = (3.1415f / 2.0f);
+	b->position.Set(25.0f, -0.5f * b->width.y);
+	world.Add(b);
+	++b; ++numBodies;
+
+	b->Set(Vec2(100.0f, 20.0f), FLT_MAX);
+	b->position.Set(0.0f, 25.0f);
+	world.Add(b);
+	++b; ++numBodies;
+
 	b->Set(Vec2(1.0f, 1.0f), 200.0f);
-	b->position.Set(0.0f, 4.0f);
+	b->position.Set(0.0f, 10.0f);
+	b->velocity.Set(0.0, -5.0f);
+	world.Add(b);
+	++b; ++numBodies;
+
+	b->Set(Vec2(1.0f, 1.0f), 200.0f);
+	b->position.Set(0.0f, 2.0f);
+	b->velocity.Set(0.0, 5.0f);
 	world.Add(b);
 	++b; ++numBodies;
 }
@@ -147,6 +172,7 @@ static void Demo1(Body* b, Joint* j)
 // A simple pendulum
 static void Demo2(Body* b, Joint* j)
 {
+	
 	Body* b1 = b + 0;
 	b1->Set(Vec2(100.0f, 20.0f), FLT_MAX);
 	b1->friction = 0.2f;
@@ -554,6 +580,14 @@ static void Keyboard(GLFWwindow* window, int key, int scancode, int action, int 
 
 	case GLFW_KEY_W:
 		World::warmStarting = !World::warmStarting;
+		break;
+	case GLFW_KEY_F:
+		for (int i = 0; i < world.bodies.size(); i++) {
+			Body* b = world.bodies[i];
+
+			Vec2 v = Vec2(5.0f, 5.0f);
+			b->velocity += v;
+		}
 		break;
 
 	case GLFW_KEY_SPACE:

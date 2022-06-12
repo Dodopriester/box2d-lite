@@ -1,0 +1,115 @@
+git-lfs/2.9.0 (GitHub; windows amd64; go 1.12.7; git 8ab05aa7)
+git version 2.24.0.windows.2
+
+$ git.exe filter-process
+Error downloading object: docs/GDC2006_Catto_Erin_PhysicsTutorial.pdf (38b3565): Smudge error: Error downloading docs/GDC2006_Catto_Erin_PhysicsTutorial.pdf (38b3565e1924b3754e75035e2c7a27541f256007b8f5467bf6cc4b4969c24bcc): batch request: missing protocol: ""
+
+missing protocol: ""
+batch request
+github.com/git-lfs/git-lfs/errors.newWrappedError
+	d:/a/git-lfs/git-lfs/errors/types.go:198
+github.com/git-lfs/git-lfs/errors.Wrap
+	d:/a/git-lfs/git-lfs/errors/errors.go:74
+github.com/git-lfs/git-lfs/tq.(*tqClient).Batch
+	d:/a/git-lfs/git-lfs/tq/api.go:68
+github.com/git-lfs/git-lfs/tq.Batch
+	d:/a/git-lfs/git-lfs/tq/api.go:40
+github.com/git-lfs/git-lfs/tq.(*TransferQueue).enqueueAndCollectRetriesFor
+	d:/a/git-lfs/git-lfs/tq/transfer_queue.go:520
+github.com/git-lfs/git-lfs/tq.(*TransferQueue).collectBatches.func1
+	d:/a/git-lfs/git-lfs/tq/transfer_queue.go:432
+runtime.goexit
+	C:/Go1.12.7/src/runtime/asm_amd64.s:1337
+Error downloading docs/GDC2006_Catto_Erin_PhysicsTutorial.pdf (38b3565e1924b3754e75035e2c7a27541f256007b8f5467bf6cc4b4969c24bcc)
+github.com/git-lfs/git-lfs/errors.newWrappedError
+	d:/a/git-lfs/git-lfs/errors/types.go:198
+github.com/git-lfs/git-lfs/errors.Wrapf
+	d:/a/git-lfs/git-lfs/errors/errors.go:85
+github.com/git-lfs/git-lfs/lfs.(*GitFilter).downloadFile
+	d:/a/git-lfs/git-lfs/lfs/gitfilter_smudge.go:115
+github.com/git-lfs/git-lfs/lfs.(*GitFilter).Smudge
+	d:/a/git-lfs/git-lfs/lfs/gitfilter_smudge.go:76
+github.com/git-lfs/git-lfs/commands.smudge
+	d:/a/git-lfs/git-lfs/commands/command_smudge.go:127
+github.com/git-lfs/git-lfs/commands.filterCommand
+	d:/a/git-lfs/git-lfs/commands/command_filter_process.go:118
+github.com/spf13/cobra.(*Command).execute
+	go/pkg/mod/github.com/spf13/cobra@v0.0.3/command.go:766
+github.com/spf13/cobra.(*Command).ExecuteC
+	go/pkg/mod/github.com/spf13/cobra@v0.0.3/command.go:852
+github.com/spf13/cobra.(*Command).Execute
+	go/pkg/mod/github.com/spf13/cobra@v0.0.3/command.go:800
+github.com/git-lfs/git-lfs/commands.Run
+	d:/a/git-lfs/git-lfs/commands/run.go:97
+main.main
+	d:/a/git-lfs/git-lfs/git-lfs.go:33
+runtime.main
+	C:/Go1.12.7/src/runtime/proc.go:200
+runtime.goexit
+	C:/Go1.12.7/src/runtime/asm_amd64.s:1337
+Smudge error
+github.com/git-lfs/git-lfs/errors.newWrappedError
+	d:/a/git-lfs/git-lfs/errors/types.go:198
+github.com/git-lfs/git-lfs/errors.NewSmudgeError
+	d:/a/git-lfs/git-lfs/errors/types.go:284
+github.com/git-lfs/git-lfs/lfs.(*GitFilter).Smudge
+	d:/a/git-lfs/git-lfs/lfs/gitfilter_smudge.go:85
+github.com/git-lfs/git-lfs/commands.smudge
+	d:/a/git-lfs/git-lfs/commands/command_smudge.go:127
+github.com/git-lfs/git-lfs/commands.filterCommand
+	d:/a/git-lfs/git-lfs/commands/command_filter_process.go:118
+github.com/spf13/cobra.(*Command).execute
+	go/pkg/mod/github.com/spf13/cobra@v0.0.3/command.go:766
+github.com/spf13/cobra.(*Command).ExecuteC
+	go/pkg/mod/github.com/spf13/cobra@v0.0.3/command.go:852
+github.com/spf13/cobra.(*Command).Execute
+	go/pkg/mod/github.com/spf13/cobra@v0.0.3/command.go:800
+github.com/git-lfs/git-lfs/commands.Run
+	d:/a/git-lfs/git-lfs/commands/run.go:97
+main.main
+	d:/a/git-lfs/git-lfs/git-lfs.go:33
+runtime.main
+	C:/Go1.12.7/src/runtime/proc.go:200
+runtime.goexit
+	C:/Go1.12.7/src/runtime/asm_amd64.s:1337
+
+Current time in UTC: 
+2022-06-11 18:19:29
+
+ENV:
+LocalWorkingDir=
+LocalGitDir=
+LocalGitStorageDir=
+LocalMediaDir=lfs\objects
+LocalReferenceDirs=
+TempDir=lfs\tmp
+ConcurrentTransfers=3
+TusTransfers=false
+BasicTransfersOnly=false
+SkipDownloadErrors=false
+FetchRecentAlways=false
+FetchRecentRefsDays=7
+FetchRecentCommitsDays=0
+FetchRecentRefsIncludeRemotes=true
+PruneOffsetDays=3
+PruneVerifyRemoteAlways=false
+PruneRemoteName=origin
+LfsStorageDir=lfs
+AccessDownload=none
+AccessUpload=none
+DownloadTransfers=basic,lfs-standalone-file
+UploadTransfers=basic,lfs-standalone-file
+GIT_ASKPASS=C:/program files (x86)/microsoft visual studio/2019/community/common7/ide/commonextensions/microsoft/teamfoundation/team explorer/Git/mingw32/libexec/git-core/git-askpass.exe
+GIT_CEILING_DIRECTORIES=C:/Users/lptoa/Source/Repos
+GIT_CONFIG_PARAMETERS='gc.auto'='0' 'credential.helper'='manager' 'core.askpass'='askpass'
+GIT_DIR=C:/Users/lptoa/Source/Repos/box2d-lite/.git
+GIT_EXEC_PATH=c:/program files (x86)/microsoft visual studio/2019/community/common7/ide/commonextensions/microsoft/teamfoundation/team explorer/Git/mingw32/libexec/git-core
+GIT_FLUSH=1
+GIT_HTTP_USER_AGENT=git/2.33.0 (Microsoft Windows NT 10.0.19044.0; Win32NT x64) CLR/4.0.30319 VS16/16.0.0
+GIT_MERGE_VERBOSITY=4
+GIT_PAGER=cat
+GIT_TERMINAL_PROMPT=0
+
+Client IP addresses:
+fe80::38b9:c9b7:84e:f91 192.168.1.30
+fe80::a8bf:2bb9:f4bb:f2e3 192.168.56.1

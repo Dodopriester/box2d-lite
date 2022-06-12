@@ -9,6 +9,8 @@
 * It is provided "as is" without express or implied warranty.
 */
 
+#include <iostream>
+
 #include "box2d-lite/World.h"
 #include "box2d-lite/Body.h"
 #include "box2d-lite/Joint.h"
@@ -43,6 +45,8 @@ void World::Clear()
 
 void World::BroadPhase()
 {
+	int foundCollisions = 0;
+
 	// O(n^2) broad-phase
 	for (int i = 0; i < (int)bodies.size(); ++i)
 	{
@@ -69,6 +73,8 @@ void World::BroadPhase()
 				{
 					iter->second.Update(newArb.contacts, newArb.numContacts);
 				}
+
+				foundCollisions++;
 			}
 			else
 			{
@@ -76,6 +82,11 @@ void World::BroadPhase()
 			}
 		}
 	}
+
+	if (foundCollisions > 0) {
+		std::cout << "Found " << foundCollisions << std::endl;
+	}
+
 }
 
 void World::Step(float dt)

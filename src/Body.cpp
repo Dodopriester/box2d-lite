@@ -19,7 +19,7 @@ Body::Body()
 	angularVelocity = 0.0f;
 	force.Set(0.0f, 0.0f);
 	torque = 0.0f;
-	friction = 0.2f;
+	friction = 0.0f;
 
 	width.Set(1.0f, 1.0f);
 	mass = FLT_MAX;
@@ -36,7 +36,7 @@ void Body::Set(const Vec2& w, float m)
 	angularVelocity = 0.0f;
 	force.Set(0.0f, 0.0f);
 	torque = 0.0f;
-	friction = 0.2f;
+	friction = 0.0f;
 
 	width = w;
 	mass = m;
