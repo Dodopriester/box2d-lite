@@ -14,8 +14,11 @@
 
 #include <vector>
 #include <map>
+#include <chrono>
 #include "MathUtils.h"
 #include "Arbiter.h"
+#include "Sample.h"
+#include "UniformGrid.h"
 
 struct Body;
 struct Joint;
@@ -40,6 +43,7 @@ struct World
 	static bool accumulateImpulses;
 	static bool warmStarting;
 	static bool positionCorrection;
+
 };
 
 #endif

@@ -11,7 +11,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
-#include <random>
+#include <ctime>
 
 #include "imgui/imgui.h"
 #include "imgui_impl_glfw.h"
@@ -24,6 +24,7 @@
 #include "box2d-lite/World.h"
 #include "box2d-lite/Body.h"
 #include "box2d-lite/Joint.h"
+#include "box2d-lite/UniformGrid.h"
 
 namespace
 {
@@ -35,6 +36,7 @@ namespace
 	Body* bomb = NULL;
 
 	float timeStep = 1.0f / 60.0f;
+	
 	int iterations = 10;
 	Vec2 gravity(0.0f, 0.0f);
 
@@ -45,7 +47,7 @@ namespace
 
 	int width = 1280;
 	int height = 720;
-	float zoom = 10.0f;
+	float zoom = 40.0f;
 	float pan_y = 8.0f;
 
 	World world(gravity, iterations);
@@ -134,39 +136,83 @@ static void LaunchBomb()
 // Single box
 static void Demo1(Body* b, Joint* j)
 {
-	b->Set(Vec2(100.0f, 20.0f), FLT_MAX);
-	b->position.Set(0.0f, -0.5f * b->width.y);
+	b->Set(Vec2(100.0f, 1.0f), FLT_MAX);
+	b->position.Set(0.0f, -22.0f);
 	world.Add(b);
 	++b; ++numBodies;
 
-	b->Set(Vec2(100.0f, 20.0f), FLT_MAX);
+	b->Set(Vec2(65.0f, 1.0f), FLT_MAX);
 	b->rotation = (3.1415f/2.0f);
-	b->position.Set(-25.0f, -0.5f * b->width.y);
+	b->position.Set(-45.0f, 7.5f);
 	world.Add(b);
 	++b; ++numBodies;
 
-	b->Set(Vec2(100.0f, 20.0f), FLT_MAX);
+	b->Set(Vec2(65.0f, 1.0f), FLT_MAX);
 	b->rotation = (3.1415f / 2.0f);
-	b->position.Set(25.0f, -0.5f * b->width.y);
+	b->position.Set(45.0f, 7.5f);
 	world.Add(b);
 	++b; ++numBodies;
 
-	b->Set(Vec2(100.0f, 20.0f), FLT_MAX);
-	b->position.Set(0.0f, 25.0f);
+	b->Set(Vec2(100.0f, 1.0f), FLT_MAX);
+	b->position.Set(0.0f, 38.0f);
 	world.Add(b);
 	++b; ++numBodies;
+
+	b->friction = 0.0f;
+
+	srand((unsigned int)time(NULL));
+	int numObjects = 50;
+	
+#ifdef USE_UGRID
+	initializeUGridCells();
+#endif
+
+	// Rectangles start here
+	for (int i = 0; i < numObjects; i++) {
+
+		float sizeX = Abs(Random()) * 3.0f + 1.5f;
+		float sizeY = Abs(Random()) * 3.0f + 1.5f;
+
+		float posX = Random(-40.0f, 40.0f);
+		float posY = Random(-20.0f, 30.0f);
+
+		float velX = Random(-20.0f, 20.0f);
+		float velY = Random(-20.0f, 20.0f);
+
+		float rotation = Random(0.0f, 360.0f);
+
+		b->Set(Vec2(sizeX, sizeY), 200.0f);
+		b->position.Set(posX, posY);
+		b->velocity.Set(velX, velY);
+		b->rotation = rotation;
+		world.Add(b);
+		++b; ++numBodies;
+	}
 
 	b->Set(Vec2(1.0f, 1.0f), 200.0f);
-	b->position.Set(0.0f, 10.0f);
-	b->velocity.Set(0.0, -5.0f);
+	b->position.Set(0.0f, -10.0f);
+	b->velocity.Set(0.0, 0.0f);
 	world.Add(b);
 	++b; ++numBodies;
-
+	
+	/*
 	b->Set(Vec2(1.0f, 1.0f), 200.0f);
 	b->position.Set(0.0f, 2.0f);
 	b->velocity.Set(0.0, 5.0f);
 	world.Add(b);
 	++b; ++numBodies;
+
+	b->Set(Vec2(1.0f, 1.0f), 200.0f);
+	b->position.Set(3.0f, 10.0f);
+	b->velocity.Set(0.0, -5.0f);
+	world.Add(b);
+	++b; ++numBodies;
+
+	b->Set(Vec2(1.0f, 1.0f), 200.0f);
+	b->position.Set(-3.0f, 2.0f);
+	b->velocity.Set(0.0, 5.0f);
+	world.Add(b);
+	++b; ++numBodies;*/
 }
 
 // A simple pendulum
@@ -523,7 +569,7 @@ static void Demo9(Body* b, Joint* j)
 
 void (*demos[])(Body* b, Joint* j) = {Demo1, Demo2, Demo3, Demo4, Demo5, Demo6, Demo7, Demo8, Demo9};
 const char* demoStrings[] = {
-	"Demo 1: A Single Box",
+	"Broad Phase Simulation",
 	"Demo 2: Simple Pendulum",
 	"Demo 3: Varying Friction Coefficients",
 	"Demo 4: Randomized Stacking",
@@ -695,22 +741,52 @@ int main(int, char**)
 		ImGui::End();
 
 		DrawText(5, 5, demoStrings[demoIndex]);
-		DrawText(5, 35, "Keys: 1-9 Demos, Space to Launch the Bomb");
+		/*DrawText(5, 35, "Keys: 1-9 Demos, Space to Launch the Bomb");*/
 
 		char buffer[64];
-		sprintf(buffer, "(A)ccumulation %s", World::accumulateImpulses ? "ON" : "OFF");
-		DrawText(5, 65, buffer);
+		//sprintf(buffer, "(A)ccumulation %s", World::accumulateImpulses ? "ON" : "OFF");
+		//DrawText(5, 65, buffer);
 
-		sprintf(buffer, "(P)osition Correction %s", World::positionCorrection ? "ON" : "OFF");
-		DrawText(5, 95, buffer);
+		//sprintf(buffer, "(P)osition Correction %s", World::positionCorrection ? "ON" : "OFF");
+		//DrawText(5, 95, buffer);
 
-		sprintf(buffer, "(W)arm Starting %s", World::warmStarting ? "ON" : "OFF");
-		DrawText(5, 125, buffer);
+		//sprintf(buffer, "(W)arm Starting %s", World::warmStarting ? "ON" : "OFF");
+		//DrawText(5, 125, buffer);
+
+		sprintf(buffer, "Number of bodies: %i", numBodies);
+		DrawText(5, 35, buffer);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
 		world.Step(timeStep);
+
+#ifdef USE_UGRID // Draw uniform grid cells
+		int x_size = (int)(U_WORLD_WIDTH / U_GRID_CELL_SIZE) + 1;
+		int y_size = (int)(U_WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1;
+		
+		for (int i = 0; i < x_size; i++) {
+			for (int j = 0; j < y_size; j++) {
+				UGridCell* cell = cells[i][j].get();
+
+				if (cell->bodies.empty()) {
+					glColor4f(0.4f, 0.0f, 0.0f, 0.2f);
+				} else {
+					glColor4f(0.0f, 0.4f, 0.0f, 0.2f);
+				}
+
+				glBegin(GL_QUADS);
+
+				glVertex2f(cell->posX, cell->posY);
+				glVertex2f(cell->posX, cell->posY + U_GRID_CELL_SIZE);
+				glVertex2f(cell->posX + U_GRID_CELL_SIZE, cell->posY + U_GRID_CELL_SIZE);
+				glVertex2f(cell->posX + U_GRID_CELL_SIZE, cell->posY);
+
+				glEnd();
+
+			}
+		}
+#endif // End Draw uniform grid cells
 
 		for (int i = 0; i < numBodies; ++i)
 			DrawBody(bodies + i);
@@ -736,6 +812,10 @@ int main(int, char**)
 
 		ImGui::Render();
 		ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+
+#ifdef USE_UGRID
+		flushCells();
+#endif
 
 		glfwPollEvents();
 		glfwSwapBuffers(mainWindow);
