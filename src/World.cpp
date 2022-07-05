@@ -73,19 +73,19 @@ void World::BroadPhase()
 	
 	auto start = std::chrono::steady_clock::now();
 
-#ifdef USE_UGRID // Uniform Grid
+#if SP_TYPE == 1 // Uniform Grid
 	for (int i = 0; i < (int)bodies.size(); ++i) {
 		Body* body = bodies[i];
 	
-		putBodyIntoCell(body);
+		UGrid::putBodyIntoCell(body);
 	}
 
-	int x_size = (int)(U_WORLD_WIDTH / U_GRID_CELL_SIZE) + 1;
-	int y_size = (int)(U_WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1;
+	int x_size = (int)(WORLD_WIDTH / U_GRID_CELL_SIZE) + 1;
+	int y_size = (int)(WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1;
 
 	for (int x = 0; x < x_size; x++) {
 		for (int y = 0; y < y_size; y++) {
-			std::vector<Body*> cellBodies = cells[x][y]->bodies;
+			std::vector<Body*> cellBodies = UGrid::cells[x][y]->bodies;
 
 			// If there are less than two objects in a cell, then we can skip any collision checks for this cell
 #ifndef DONT_SKIP_SINGLE_BODY_CELLS
@@ -131,6 +131,15 @@ void World::BroadPhase()
 			}
 		}
 	}
+
+#elif SP_TYPE == 2 // QuadTree
+
+	// Insert bodies into the QuadTree
+	for (int i = 0; i < bodies.size(); i++) {
+		QuadTree::insertBodyIntoQuadTree(QuadTree::quadTree, bodies[i]);
+	}
+
+	testAllCollisions(QuadTree::quadTree, possibleCollisions, foundCollisions);
 
 #else
 
@@ -192,6 +201,70 @@ void World::BroadPhase()
 	}
 
 }
+
+#if SP_TYPE == 2
+void World::testAllCollisions(QuadTree::Node* tree, int& possibleCollisions, int& actualCollisions)
+{
+	static QuadTree::Node* ancestorStack[QT_MAX_DEPTH+1];
+	static int depth = 0;
+
+	// Check collisions between all bodies of this level and the preceding ones
+	ancestorStack[depth++] = tree;
+
+	for (int n = 0; n < depth; n++) {
+		Body *bA, *bB;
+
+		for (int a = 0; a < ancestorStack[n]->bodies.size(); a++) {
+			for (int b = 0; b < tree->bodies.size(); b++) {
+				bA = ancestorStack[n]->bodies[a];
+				bB = tree->bodies[b];
+
+				// Avoid testing both A -> B and B -> A
+				if (bA == bB) break;
+
+				if (bA->invMass == 0.0f && bB->invMass == 0.0f)
+					continue;
+
+				possibleCollisions++;
+
+				Arbiter newArb(bA, bB);
+				ArbiterKey key(bA, bB);
+
+				if (newArb.numContacts > 0)
+				{
+
+					ArbIter iter = arbiters.find(key);
+					if (iter == arbiters.end())
+					{
+						arbiters.insert(ArbPair(key, newArb));
+					}
+					else
+					{
+						iter->second.Update(newArb.contacts, newArb.numContacts);
+					}
+
+					actualCollisions++;
+				}
+				else
+				{
+					arbiters.erase(key);
+				}
+			}
+		}
+	}
+
+	// Recursively visit all children and call this function again
+	for (int i = 0; i < 4; i++) {
+		if (tree->children[i] != NULL)
+			testAllCollisions(tree->children[i], possibleCollisions, actualCollisions);
+	}
+
+	// Remove current node from ancestor stack before returning
+	depth--;
+
+}
+
+#endif
 
 void World::Step(float dt)
 {

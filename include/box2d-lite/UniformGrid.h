@@ -1,11 +1,9 @@
 #pragma once
 
-#define USE_UGRID
+#include "Base.h"
 
-#ifdef USE_UGRID
+#if SP_TYPE == 1
 #define U_GRID_CELL_SIZE 5.0f
-#define U_WORLD_WIDTH 100.0f
-#define U_WORLD_HEIGHT 70.0f
 #define U_GRID_OFFSET_X -50.0f
 #define U_GRID_OFFSET_Y -30.0f
 //#define DONT_SKIP_SINGLE_BODY_CELLS
@@ -16,19 +14,25 @@
 
 #include "Body.h"
 
-struct UGridCell {
-	std::vector<Body*> bodies;
-	float posX, posY; // The bottom left position of the cell
+namespace UGrid {
 
-	UGridCell(float posX, float posY);
-};
+	struct UGridCell {
+		std::vector<Body*> bodies;
+		float posX, posY; // The bottom left position of the cell
 
-void initializeUGridCells();
+		UGridCell(float posX, float posY);
+	};
 
-void putBodyIntoCell(Body* body);
+	void initializeUGridCells();
 
-void flushCells();
+	void putBodyIntoCell(Body* body);
 
-extern std::shared_ptr<UGridCell> cells[(unsigned int)(U_WORLD_WIDTH / U_GRID_CELL_SIZE)+1][(unsigned int)(U_WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1];
+	// Deletes all object references from the grid cells
+	void flushCells();
+
+	// Contains all cells of the grid
+	extern std::shared_ptr<UGridCell> cells[(unsigned int)(WORLD_WIDTH / U_GRID_CELL_SIZE) + 1][(unsigned int)(WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1];
+
+}
 
 #endif

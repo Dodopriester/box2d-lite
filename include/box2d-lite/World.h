@@ -15,10 +15,12 @@
 #include <vector>
 #include <map>
 #include <chrono>
+#include "Base.h"
 #include "MathUtils.h"
 #include "Arbiter.h"
 #include "Sample.h"
 #include "UniformGrid.h"
+#include "QuadTree.h"
 
 struct Body;
 struct Joint;
@@ -34,6 +36,17 @@ struct World
 	void Step(float dt);
 
 	void BroadPhase();
+
+#if SP_TYPE == 2
+
+	/* Tests all possible collisions of the tree
+	* @param tree The QuadTree containing the objects
+	* @param possibleCollisions The number of possible collisions
+	* @param actualCollisions The number of collisions that actually occured
+	*/
+	void testAllCollisions(QuadTree::Node* tree, int& possibleCollisions, int& actualCollisions);
+
+#endif
 
 	std::vector<Body*> bodies;
 	std::vector<Joint*> joints;

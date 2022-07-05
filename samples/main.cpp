@@ -11,6 +11,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <iostream>
 #include <ctime>
 
 #include "imgui/imgui.h"
@@ -25,6 +26,7 @@
 #include "box2d-lite/Body.h"
 #include "box2d-lite/Joint.h"
 #include "box2d-lite/UniformGrid.h"
+#include "box2d-lite/QuadTree.h"
 
 namespace
 {
@@ -48,7 +50,7 @@ namespace
 	int width = 1280;
 	int height = 720;
 	float zoom = 40.0f;
-	float pan_y = 8.0f;
+	float pan_y = 0.0f;
 
 	World world(gravity, iterations);
 }
@@ -76,9 +78,9 @@ static void DrawBody(Body* body)
 	Vec2 h = 0.5f * body->width;
 
 	Vec2 v1 = x + R * Vec2(-h.x, -h.y);
-	Vec2 v2 = x + R * Vec2( h.x, -h.y);
-	Vec2 v3 = x + R * Vec2( h.x,  h.y);
-	Vec2 v4 = x + R * Vec2(-h.x,  h.y);
+	Vec2 v2 = x + R * Vec2(h.x, -h.y);
+	Vec2 v3 = x + R * Vec2(h.x, h.y);
+	Vec2 v4 = x + R * Vec2(-h.x, h.y);
 
 	if (body == bomb)
 		glColor3f(0.4f, 0.9f, 0.4f);
@@ -91,6 +93,7 @@ static void DrawBody(Body* body)
 	glVertex2f(v3.x, v3.y);
 	glVertex2f(v4.x, v4.y);
 	glEnd();
+
 }
 
 static void DrawJoint(Joint* joint)
@@ -133,23 +136,59 @@ static void LaunchBomb()
 	bomb->angularVelocity = Random(-20.0f, 20.0f);
 }
 
+#if SP_TYPE == 2
+
+static void DrawQuadTree(QuadTree::Node* tree, int level = 0) 
+{
+	glColor4f(0.4f, 0.1f * level, 0.0f, 1.0f);
+
+	for (int i = 0; i < 1; i++) {
+		for (Body* body : tree->bodies) {
+			
+			if(body == &bodies[i])
+				glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+
+		}
+	}
+	
+	// Draw this node first
+	glBegin(GL_LINE_LOOP);
+
+	glVertex2f(tree->centerX - tree->halfWidth, tree->centerY - tree->halfWidth);
+	glVertex2f(tree->centerX - tree->halfWidth, tree->centerY + tree->halfWidth);
+	glVertex2f(tree->centerX + tree->halfWidth, tree->centerY + tree->halfWidth);
+	glVertex2f(tree->centerX + tree->halfWidth, tree->centerY - tree->halfWidth);
+
+	glEnd();
+
+	// Traverse and draw the children
+	for (int i = 0; i < 4; i++) {
+		if (tree->children[i] != NULL) {
+			DrawQuadTree(tree->children[i], level + 1);
+		}
+	}
+
+}
+
+#endif
+
 // Single box
 static void Demo1(Body* b, Joint* j)
 {
 	b->Set(Vec2(100.0f, 1.0f), FLT_MAX);
-	b->position.Set(0.0f, -22.0f);
+	b->position.Set(0.0f, -38.0f);
 	world.Add(b);
 	++b; ++numBodies;
 
-	b->Set(Vec2(65.0f, 1.0f), FLT_MAX);
+	b->Set(Vec2(85.0f, 1.0f), FLT_MAX);
 	b->rotation = (3.1415f/2.0f);
-	b->position.Set(-45.0f, 7.5f);
+	b->position.Set(-50.0f, 2.5f);
 	world.Add(b);
 	++b; ++numBodies;
 
-	b->Set(Vec2(65.0f, 1.0f), FLT_MAX);
+	b->Set(Vec2(85.0f, 1.0f), FLT_MAX);
 	b->rotation = (3.1415f / 2.0f);
-	b->position.Set(45.0f, 7.5f);
+	b->position.Set(50.0f, 2.5f);
 	world.Add(b);
 	++b; ++numBodies;
 
@@ -157,21 +196,25 @@ static void Demo1(Body* b, Joint* j)
 	b->position.Set(0.0f, 38.0f);
 	world.Add(b);
 	++b; ++numBodies;
-
+		
 	b->friction = 0.0f;
 
-	srand((unsigned int)time(NULL));
-	int numObjects = 50;
-	
-#ifdef USE_UGRID
-	initializeUGridCells();
+	srand(10);
+	int numObjects = 0;
+
+	std::cout << "Enter number of objects: ";
+	std::cin >> numObjects;
+	std::cout << std::endl;
+
+#if SP_TYPE == 1
+	UGrid::initializeUGridCells();
 #endif
 
 	// Rectangles start here
 	for (int i = 0; i < numObjects; i++) {
 
-		float sizeX = Abs(Random()) * 3.0f + 1.5f;
-		float sizeY = Abs(Random()) * 3.0f + 1.5f;
+		float sizeX = Abs(Random()) * 2.0f + 1.0f;
+		float sizeY = Abs(Random()) * 2.0f + 1.0f;
 
 		float posX = Random(-40.0f, 40.0f);
 		float posY = Random(-20.0f, 30.0f);
@@ -189,30 +232,6 @@ static void Demo1(Body* b, Joint* j)
 		++b; ++numBodies;
 	}
 
-	b->Set(Vec2(1.0f, 1.0f), 200.0f);
-	b->position.Set(0.0f, -10.0f);
-	b->velocity.Set(0.0, 0.0f);
-	world.Add(b);
-	++b; ++numBodies;
-	
-	/*
-	b->Set(Vec2(1.0f, 1.0f), 200.0f);
-	b->position.Set(0.0f, 2.0f);
-	b->velocity.Set(0.0, 5.0f);
-	world.Add(b);
-	++b; ++numBodies;
-
-	b->Set(Vec2(1.0f, 1.0f), 200.0f);
-	b->position.Set(3.0f, 10.0f);
-	b->velocity.Set(0.0, -5.0f);
-	world.Add(b);
-	++b; ++numBodies;
-
-	b->Set(Vec2(1.0f, 1.0f), 200.0f);
-	b->position.Set(-3.0f, 2.0f);
-	b->velocity.Set(0.0, 5.0f);
-	world.Add(b);
-	++b; ++numBodies;*/
 }
 
 // A simple pendulum
@@ -761,13 +780,13 @@ int main(int, char**)
 
 		world.Step(timeStep);
 
-#ifdef USE_UGRID // Draw uniform grid cells
-		int x_size = (int)(U_WORLD_WIDTH / U_GRID_CELL_SIZE) + 1;
-		int y_size = (int)(U_WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1;
+#if SP_TYPE == 1 // Draw uniform grid cells
+		int x_size = (int)(WORLD_WIDTH / U_GRID_CELL_SIZE) + 1;
+		int y_size = (int)(WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1;
 		
 		for (int i = 0; i < x_size; i++) {
 			for (int j = 0; j < y_size; j++) {
-				UGridCell* cell = cells[i][j].get();
+				UGrid::UGridCell* cell = UGrid::cells[i][j].get();
 
 				if (cell->bodies.empty()) {
 					glColor4f(0.4f, 0.0f, 0.0f, 0.2f);
@@ -786,7 +805,11 @@ int main(int, char**)
 
 			}
 		}
-#endif // End Draw uniform grid cells
+#elif SP_TYPE == 2
+		glColor4f(0.4f, 0.0f, 0.0f, 0.2f);
+		DrawQuadTree(QuadTree::quadTree);
+		QuadTree::flushQuadTree(QuadTree::quadTree);
+#endif
 
 		for (int i = 0; i < numBodies; ++i)
 			DrawBody(bodies + i);
@@ -813,8 +836,8 @@ int main(int, char**)
 		ImGui::Render();
 		ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
-#ifdef USE_UGRID
-		flushCells();
+#if SP_TYPE == 1
+		UGrid::flushCells();
 #endif
 
 		glfwPollEvents();

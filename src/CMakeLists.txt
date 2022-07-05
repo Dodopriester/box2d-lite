@@ -5,7 +5,8 @@ set(BOX2D_SOURCE_FILES
 	Joint.cpp
 	World.cpp
 	Sample.cpp
-	UniformGrid.cpp)
+	UniformGrid.cpp
+	QuadTree.cpp)
 
 set(BOX2D_HEADER_FILES
 	../include/box2d-lite/Arbiter.h
@@ -14,7 +15,9 @@ set(BOX2D_HEADER_FILES
 	../include/box2d-lite/MathUtils.h
 	../include/box2d-lite/World.h
 	../include/box2d-lite/Sample.h
-	../include/box2d-lite/UniformGrid.h)
+	../include/box2d-lite/UniformGrid.h
+	../include/box2d-lite/QuadTree.h
+	../include/box2d-lite/Base.h)
 
 add_library(box2d-lite STATIC ${BOX2D_SOURCE_FILES} ${BOX2D_HEADER_FILES})
 target_include_directories(box2d-lite PUBLIC ../include)

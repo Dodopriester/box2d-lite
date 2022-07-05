@@ -1,27 +1,26 @@
 #include "box2d-lite/UniformGrid.h"
 
-#ifdef USE_UGRID
+#if SP_TYPE == 1
 
-//std::vector<std::vector<UGridCell*>> cells;
-std::shared_ptr<UGridCell> cells[(unsigned int)(U_WORLD_WIDTH / U_GRID_CELL_SIZE) + 1][(unsigned int)(U_WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1];
+std::shared_ptr<UGrid::UGridCell> UGrid::cells[(unsigned int)(WORLD_WIDTH / U_GRID_CELL_SIZE) + 1][(unsigned int)(WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1];
 
-UGridCell::UGridCell(float posX, float posY) : posX(posX), posY(posY)
+UGrid::UGridCell::UGridCell(float posX, float posY) : posX(posX), posY(posY)
 {
 }
 
-void initializeUGridCells()
+void UGrid::initializeUGridCells()
 {
-	int x_size = (int)(U_WORLD_WIDTH / U_GRID_CELL_SIZE) + 1;
-	int y_size = (int)(U_WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1;
+	int x_size = (int)(WORLD_WIDTH / U_GRID_CELL_SIZE) + 1;
+	int y_size = (int)(WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1;
 	
 	for (int x = 0; x < x_size; x++) {
 		for (int y = 0; y < y_size; y++) {
-			cells[x][y] = std::make_shared<UGridCell>(UGridCell(U_GRID_OFFSET_X + (float)(U_GRID_CELL_SIZE * x), U_GRID_OFFSET_Y + (float)(U_GRID_CELL_SIZE * y)));
+			cells[x][y] = std::make_shared<UGrid::UGridCell>(UGrid::UGridCell(U_GRID_OFFSET_X + (float)(U_GRID_CELL_SIZE * x), U_GRID_OFFSET_Y + (float)(U_GRID_CELL_SIZE * y)));
 		}
 	}
 }
 
-void putBodyIntoCell(Body* body)
+void UGrid::putBodyIntoCell(Body* body)
 {
 	// Get vertices
 	Mat22 R(body->rotation);
@@ -67,10 +66,10 @@ void putBodyIntoCell(Body* body)
 
 }
 
-void flushCells()
+void UGrid::flushCells()
 {
-	int x_size = (int)(U_WORLD_WIDTH / U_GRID_CELL_SIZE) + 1;
-	int y_size = (int)(U_WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1;
+	int x_size = (int)(WORLD_WIDTH / U_GRID_CELL_SIZE) + 1;
+	int y_size = (int)(WORLD_HEIGHT / U_GRID_CELL_SIZE) + 1;
 
 	for (int x = 0; x < x_size; x++) {
 		for (int y = 0; y < y_size; y++) {
