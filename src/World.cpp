@@ -16,8 +16,6 @@
 #include "box2d-lite/Joint.h"
 #include "box2d-lite/Sample.h"
 
-#define NO_EXPORT_SAMPLING
-
 using std::vector;
 using std::map;
 using std::pair;
@@ -28,6 +26,11 @@ typedef pair<ArbiterKey, Arbiter> ArbPair;
 bool World::accumulateImpulses = true;
 bool World::warmStarting = true;
 bool World::positionCorrection = true;
+
+int accExecutionTime = 0;
+int accPossibleCollisions = 0;
+int accActualCollisions = 0;
+float accEfficiency = 0;
 
 void World::Add(Body* body)
 {
@@ -55,16 +58,14 @@ void World::BroadPhase()
 
 #ifndef NO_EXPORT_SAMPLING
 	if (secondsPassed == samplingTime && currentFrame == 0) {
-		std::string filename = "naive_200_trial_3"; //Name of the file without extension
-
 		std::cout << "Sampling done" << std::endl;
-		std::cout << "Writing to file " << filename << std::endl;
+		std::cout << "Writing to file " << sample_export_filename << std::endl;
 
-		exportSamplesToFile(filename);
+		exportSamplesToFile(sample_export_filename);
 	}
 #endif
 
-	if (currentFrame % (framerate / sampleRate) == 0 && secondsPassed < samplingTime) {
+	if (currentFrame % (framerate / sampleRate) == 0 && secondsPassed < samplingTime && currentFrame != 0) {
 		shouldSample = true;
 	}
 	else {
@@ -184,20 +185,29 @@ void World::BroadPhase()
 
 	auto end = std::chrono::steady_clock::now();
 
-	if (shouldSample) {
-		efficiency = (float)foundCollisions / (float)possibleCollisions;
+	accPossibleCollisions += possibleCollisions;
+	accActualCollisions += foundCollisions;
+	accExecutionTime += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+	accEfficiency += (float)foundCollisions / (float)possibleCollisions;
 
+	if (shouldSample) {
 		Sample sample;
-		sample.possibleCollisions = possibleCollisions;
-		sample.actualCollisions = foundCollisions;
+		sample.possibleCollisions = accPossibleCollisions / (float)(framerate / sampleRate);
+		sample.actualCollisions = accActualCollisions / (float)(framerate / sampleRate);
 		sample.seconds = secondsPassed;
 		sample.frame = currentFrame;
-		sample.executionTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+		sample.executionTime = accExecutionTime / (float)(framerate / sampleRate);
+		sample.efficiency = accEfficiency / (float)(framerate / sampleRate);
 
 		samples.push_back(sample);
 
 		std::cout << "Found: " << possibleCollisions << " : Actual: " << foundCollisions
-			<< " : Efficiency: " << efficiency*100 << "%" << std::endl;
+			<< " : Efficiency: " << sample.efficiency*100 << "%" << std::endl;
+
+		accPossibleCollisions = 0;
+		accActualCollisions = 0;
+		accEfficiency = 0;
+		accExecutionTime = 0;
 	}
 
 }

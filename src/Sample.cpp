@@ -1,10 +1,12 @@
 #include "box2d-lite/Sample.h"
 
 int framerate = 60;
-int sampleRate = 10; // How many times per second the speed and efficiency should be sampled
+int sampleRate = 2; // How many times per second the speed and efficiency should be sampled
 int currentFrame = 0;
 int secondsPassed = 0;
 int samplingTime = 10;
+
+std::string sample_export_filename = "test";
 
 std::vector<Sample> samples;
 
@@ -21,7 +23,7 @@ void exportSamplesToFile(std::string name)
 		
 		std::string row = std::to_string(sample.GetTime()) + "," + std::to_string(sample.seconds) + "," + std::to_string(sample.frame)
 			+ "," + std::to_string(sample.executionTime) + "," + std::to_string(sample.possibleCollisions) + ","
-			+ std::to_string(sample.actualCollisions) + "," + std::to_string(sample.GetEfficiency()) + "\n";
+			+ std::to_string(sample.actualCollisions) + "," + std::to_string(sample.efficiency) + "\n";
 
 		file << row;
 	}

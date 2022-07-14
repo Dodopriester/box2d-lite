@@ -199,12 +199,18 @@ static void Demo1(Body* b, Joint* j)
 		
 	b->friction = 0.0f;
 
-	srand(10);
+	srand((unsigned int)time(NULL));
 	int numObjects = 0;
 
 	std::cout << "Enter number of objects: ";
 	std::cin >> numObjects;
 	std::cout << std::endl;
+
+#ifndef NO_EXPORT_SAMPLING
+	std::cout << "Enter filename to export measurements to (no extension): ";
+	std::cin >> sample_export_filename;
+	std::cout << std::endl;
+#endif
 
 #if SP_TYPE == 1
 	UGrid::initializeUGridCells();
@@ -213,8 +219,8 @@ static void Demo1(Body* b, Joint* j)
 	// Rectangles start here
 	for (int i = 0; i < numObjects; i++) {
 
-		float sizeX = Abs(Random()) * 2.0f + 1.0f;
-		float sizeY = Abs(Random()) * 2.0f + 1.0f;
+		float sizeX = Abs(Random()) * 2.0f + 0.5f;
+		float sizeY = Abs(Random()) * 2.0f + 0.5f;
 
 		float posX = Random(-40.0f, 40.0f);
 		float posY = Random(-20.0f, 30.0f);
